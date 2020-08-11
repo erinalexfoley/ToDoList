@@ -11,11 +11,12 @@ import UIKit
 class ToDoTableViewController: UITableViewController {
 
     
-    var listOfToDo : [ToDoClass] = []
-    
-    func createToDo() -> [ToDoClass] {
+    var listOfToDo : [ToDoCD] = []
+    func getToDo() {
         
-        let apushEssayToDo = ToDoClass()
+      /*ITERATION 0
+         
+         let apushEssayToDo = ToDoClass()
         apushEssayToDo.description = "APUSH essay"
         apushEssayToDo.important = true
         
@@ -24,13 +25,25 @@ class ToDoTableViewController: UITableViewController {
         
         return [apushEssayToDo, apushNotesToTake]
         
+    */
+        
+        if let accessToCoreData =
+            (UIApplication.shared.delegate as?
+            AppDelegate)?.persistentContainer.viewContext {
+            
+            if let dataFromCoreData = try?
+                accessToCoreData.fetch(ToDoCD.fetchRequest()) as? [ToDoCD]
+            {
+                listOfToDo = dataFromCoreData
+                tableView.reloadData()
+            }
+        }
     }
     
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        listOfToDo = createToDo()
     }
 
 
@@ -46,18 +59,23 @@ class ToDoTableViewController: UITableViewController {
         //each list item will be filled with a to-do item and the cell's label will be set to its description
         
         let eachToDo = listOfToDo[indexPath.row]
-        cell.textLabel?.text = eachToDo.description
+        
+        cell.textLabel?.text = eachToDo.descriptionInCD
         //if a to-do item has its important variable set to "true", it will appear red
-        if eachToDo.important {
-            cell.textLabel?.text =  eachToDo.description
+        if eachToDo.importantInCD {
+            cell.textLabel?.text =  eachToDo.descriptionInCD
             cell.textLabel?.textColor = UIColor.red
             
         } else {
-            cell.textLabel?.text = eachToDo.description
+            cell.textLabel?.text = eachToDo.descriptionInCD
         }
 
         return cell
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+           getToDo()
+       }
    
 //this function will be called right after the user taps the "+" icon, but before the segue is actually performed.
 /* Once the user triggers a segue, it will check the destination.
@@ -72,12 +90,14 @@ This allows the two ViewControllers to know about each other!
         }
         
         if let nextCompletedToDoVC = segue.destination as? CompletedToDoViewController {
-            if let chosenToDo = sender as? ToDoClass {
+            if let chosenToDo = sender as? ToDoCD {
                 nextCompletedToDoVC.selectedToDo = chosenToDo
                 nextCompletedToDoVC.previousToDoTVC = self
             }
         }
     }
+    
+    
     
 /*determine which ToDo row was tapped using listOfToDo[indexPath.row]
 give instructions to perform the segue with the additional information that is contained within (the identifier) “moveToCompletedToDoVC”
@@ -91,4 +111,6 @@ give instructions to perform the segue with the additional information that is c
         
         performSegue(withIdentifier: "moveToCompletedToDoVC", sender: eachToDo)
     }
+    
+   
 }

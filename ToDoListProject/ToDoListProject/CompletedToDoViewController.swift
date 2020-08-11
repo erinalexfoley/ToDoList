@@ -17,17 +17,32 @@ class CompletedToDoViewController: UIViewController {
 
         //make sure tht the ToDo text is getting to the CompleteToDoViewController
         
-        toDoDisplay.text = selectedToDo.description
+        toDoDisplay.text = selectedToDo?.descriptionInCD // the question mark after
+                                                         // selectedToDo will tell our code "if there is a selectedToDo, we'll go ahead and pass it the info it needs, otherwise, we'll set it equal to nil".
     }
     
 
     @IBAction func completeButtonTapped(_ sender: UIButton) {
+        //delete a selected ToDo from Core Data
+        guard let accessToCoreData =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        let dataFromCoreData = accessToCoreData.persistentContainer.viewContext
+        
+        if let toDo2Delete = selectedToDo {
+            dataFromCoreData.delete(toDo2Delete)
+            navigationController?.popViewController(animated: true)
+        }
     }
     
     //reference the (previous) ToDoTableViewController by creating the following objects
     
     var previousToDoTVC = ToDoTableViewController()
     
-    var selectedToDo = ToDoClass()
+    var selectedToDo : ToDoCD? // the question mark indicates that
+                               // that the object will be Core Data ToDo data ty[e or nil
+    
     
 }
